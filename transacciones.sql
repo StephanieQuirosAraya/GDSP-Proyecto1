@@ -86,14 +86,14 @@ DELIMITER $$
 
 CREATE PROCEDURE addCharacteristicProduct 
 (
-	cName NVARCHAR(50), -- nombre de la caracteristica
-    cDescription NVARCHAR(200), -- descripcion de la caracteristica
-    cMaxSelection TINYINT, -- max selection
-    pCatName NVARCHAR(50), -- nombre de la categoria del producto para sacar el id
-    cValue NVARCHAR(50), -- vaslor que contiene la caracteristica
-    pName NVARCHAR(50), -- nombre del producto para sacar el id
-    cOpName NVARCHAR(50), -- nombre de la caracteristica opcional
-    cOpExtraPrice INT -- precio extra de la caracteristica opcional
+	IN cName NVARCHAR(50), -- nombre de la caracteristica
+    IN cDescription NVARCHAR(200), -- descripcion de la caracteristica
+    IN cMaxSelection TINYINT, -- max selection
+    IN pCatName NVARCHAR(50), -- nombre de la categoria del producto para sacar el id
+    IN cValue NVARCHAR(50), -- vaslor que contiene la caracteristica
+    IN pName NVARCHAR(50), -- nombre del producto para sacar el id
+    IN cOpName NVARCHAR(50), -- nombre de la caracteristica opcional
+    IN cOpExtraPrice INT -- precio extra de la caracteristica opcional
 )
 BEGIN
 	-- crear un sistema de código errores 
@@ -133,9 +133,9 @@ BEGIN
     END IF;
 
 	START TRANSACTION;
-		INSERT INTO Characteristics (`Name`, `Description`, MaxSelection, @ProductCategoryID)
+        INSERT INTO Characteristics (`Name`, `Description`, MaxSelection, ProductCategoryID)
         VALUES
-        (cName, cDescription, cMaxSelection, ProductCategoryID);
+        (cName, cDescription, cMaxSelection, @ProductCategoryID);
         
         SELECT LAST_INSERT_ID() INTO @CatID;
 	
