@@ -41,7 +41,7 @@ BEGIN
 	
     SET @commerceId = -1;
 	SELECT IFNULL(commerceId, @commerceId) INTO @commerceId FROM Commerces com
-	WHERE TRIM(`Name`)=commerceName;
+	WHERE TRIM(`Name`) = commerceName;
 
 	IF (@commerceId=-1) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_FUND;
@@ -151,3 +151,5 @@ BEGIN
     
 END$$
 DELIMITER ;
+
+
