@@ -13,6 +13,8 @@ SELECT * FROM CharacteristicsPerProduct;
 SELECT * FROM CharacteristicOptions;
 SELECT * FROM CommerceTypes;
 SELECT * FROM BusinessHours;
+SELECT * FROM MenuTypes;
+SELECT * FROM MenusPerCommerce;
 
 -- INSERTS EN TABLAS PARA USAR TRANSACTION (addProduct)
 INSERT INTO Pictures (PictureID, PictureURL)
@@ -50,7 +52,7 @@ call addProducts('Soda Miguel','Arroz con pollo', 'Arroz y pollo', 1000,
 CALL addCharacteristicProduct('Tamaño Porcion', 'El tamño de la porcion de arroz con pollo, se medira por 
 el tamaño del plato', 1, 'Comida', 'Un plato de tamaño mediano', 'Arroz con pollo', 'Salsas', 0);
 
--- DELETE FROM CommerceTypes where CommerceTypeID = 20;
+DELETE FROM Pictures where PictureID = 27;
 
 SELECT CONCAT(commer.`Name`, ' ', `type`.`Name`, ' Abre: ', hours.StartTime, ' Cierra: ', hours.EndTime) 
 'Informacion de los restaurantes'
