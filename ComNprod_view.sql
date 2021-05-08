@@ -1,6 +1,6 @@
 -- ---------------------------------------------------------------
 -- CommerceTypes
---INSERT INTO CommerceTypes (`Name`, `Description`, PriorityNumber)
+INSERT INTO CommerceTypes (`Name`, `Description`, PriorityNumber)
 VALUES 
 ('Gran empresa', 'Cuenta con 250 trabajadores o más. Supera los 50 millones de euros en el negocio anual.', 0),
 ('Mediana empresa', 'Deben contar con no más de 250 trabajadores. En este tipo de empresa el volumen 
@@ -165,6 +165,8 @@ call fillProdXComm();
 
 -- -------------------------------------------------------------------------------------
 -- commerce, productsXcommerce, products
+USE Food_services;
+
 DROP VIEW IF EXISTS CommerceNProducts;
 CREATE VIEW CommerceNProducts
 AS
