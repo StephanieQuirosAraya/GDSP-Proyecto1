@@ -1,5 +1,8 @@
+
 -- -------------------------------------------------------------------------------------
 -- commerce, productsXcommerce, products
+USE Food_services;
+
 DROP VIEW IF EXISTS CommerceNProducts;
 CREATE VIEW CommerceNProducts
 AS
