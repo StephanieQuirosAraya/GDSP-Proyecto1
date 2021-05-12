@@ -1,18 +1,18 @@
 
 CREATE TEMPORARY TABLE IF NOT EXISTS temporaryCart(
- TotalProducts tinyint
-, PostTime DATETIME
-, Cancelled BIT
-, UserName NVARCHAR(50)
-, commerceName NVARCHAR(50));
+ ShppingCartID bigint
+, TotalProducts tinyint
+, Cancelled datetime
+, Cancelled bit
+, UserID bigint
+, CommerceID bigint);
 
-INSERT INTO temporaryCart(CartId, TotalProducts, PostTime, Cancelled, UserId, CommerceId)
-VALUES(1111, 2, date(), 1, 1111, 1);
+INSERT INTO temporaryCart(TotalProducts, PostTime, Cancelled, UserName, commerceName)
+select * from dbo.`ShoppingCarts`;
 
-
-DROP PROCEDURE IF EXISTS acc_registerProduct;
+DROP PROCEDURE IF EXISTS acc_addShopingCart;
 DELIMITER $$
-
+SELECT count(TotalProducts) FROM temporaryCart;
 CREATE PROCEDURE acc_addShopingCart
 (
 	IN TotalProducts tinyint, -- para buscar el commerceId
@@ -22,6 +22,8 @@ CREATE PROCEDURE acc_addShopingCart
     IN commerceName NVARCHAR(50) -- descripcion del producto
 )
 BEGIN
+	DECLARE couctTemp INT DEFAULT(0);
+    countTemp = 
 	-- crear un sistema de código errores 
 	DECLARE INVALID_FUND INT DEFAULT(53000);
 
@@ -59,7 +61,8 @@ BEGIN
     END IF;
 
 	START TRANSACTION;
-		WHILE contador 
+		WHILE contador <= 10 do
+        
 		
     COMMIT;
     
