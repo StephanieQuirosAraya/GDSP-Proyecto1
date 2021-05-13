@@ -273,3 +273,40 @@ call fillProdXcart(100);
 -- select * from ProductsPerCart;
 -- select * from ShoppingCarts;
 -- ---------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS fillCharact;
+delimiter //
+CREATE PROCEDURE fillCharact (pCantidad INT)
+BEGIN
+	-- le asigna pCantidad de caracteristicas a cada categoria de productos existente
+	declare n int default 0;
+    declare prodCat bigint;
+    declare rand1 int;
+    declare rand2 int;
+    
+	SELECT MAX(ProductCategoryID) INTO prodCat FROM ProductCategories;
+    
+    while prodCat > 0 do
+		set n = 0;
+		while n < pCantidad do
+			set rand1 = FLOOR(RAND() * 9000 + 1000);
+            set rand2 = RAND();
+            if rand2 < 0.5 then
+				set rand2 = FLOOR(RAND()* 8 + 2);	-- seleccion multiple de 2 a 10
+            else
+				set rand2 = 1;	-- es una caracteristica en la que se puede seleccionar solo una opcion
+            end if;
+			insert into Characteristics (`Name`, `Description`, MaxSelection, ProductCategoryID)
+            values (CONCAT('Caracteristica', rand1), CONCAT('Descripcion', rand1), rand2, prodCat);
+			set n = n + 1;
+        end while;
+		set prodCat = prodCat - 1;
+    end while;
+    
+END //
+delimiter ;
+
+call fillCharact(2);
+-- select * from Characteristics;
+
+-- ---------------------------------------------------------------
