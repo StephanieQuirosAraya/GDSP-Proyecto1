@@ -1,8 +1,9 @@
+USE Food_services;
 -- products, products per cart, cart, user VIEW
 DROP VIEW IF EXISTS ProductNCarts;
 CREATE VIEW ProductNCarts
 AS
-SELECT Users.UserID, carts.ShoppingCartID, TotalProducts, Cancelled, carts.PostTime, 
+SELECT Users.`Name` users, carts.ShoppingCartID, TotalProducts, Cancelled, carts.PostTime, 
 	   prod.`Name`, Price, TotalUnit, ClientInstructions
 FROM Products prod
 INNER JOIN ProductsPerCart prodXCart ON prodXCart.ProductID = prod.ProductID

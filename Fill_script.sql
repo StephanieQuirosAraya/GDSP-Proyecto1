@@ -1,3 +1,4 @@
+USE Food_services;
 -- ---------------------------------------------------------------
 -- CommerceTypes
 INSERT INTO CommerceTypes (`Name`, `Description`, PriorityNumber)
