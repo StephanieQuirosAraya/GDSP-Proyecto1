@@ -311,3 +311,84 @@ call fillCharact(2);
 -- select * from Characteristics;
 
 -- ---------------------------------------------------------------
+DROP PROCEDURE IF EXISTS fillHours;
+delimiter //
+CREATE PROCEDURE fillHours ()
+BEGIN
+	-- crea pCantidad de business hours en comercios random
+    declare maxCom bigint;
+	SELECT MAX(CommerceID) INTO maxCom FROM Commerces;
+    while maxCom > 0 do
+		INSERT INTO BusinessHours (StartTime, EndTime, CommerceID)
+		VALUES (now(), current_time(), maxCom);
+		set maxCom = maxCom - 1;
+    end while;
+END //
+delimiter ;
+
+call fillHours();
+-- ---------------------------------------------------------------
+-- MEnu types
+DROP PROCEDURE IF EXISTS fillMenus;
+delimiter //
+CREATE PROCEDURE fillMenus ()
+BEGIN
+	declare maxPic bigint;
+    SELECT MAX(PictureID) INTO maxPic FROM Pictures;
+    
+	INSERT INTO MenuTypes (`Name`, PictureID)
+	VALUES ("Asiatica", FLOOR(rand()*maxPic + 1)), ("Americana", FLOOR(rand()*maxPic + 1)), 
+			("Caribeña", FLOOR(rand()*maxPic + 1)), ("Sushi", FLOOR(rand()*maxPic + 1)),
+			("Italiana", FLOOR(rand()*maxPic + 1)), ("Vegetariana", FLOOR(rand()*maxPic + 1)), 
+            ("Mexicana", FLOOR(rand()*maxPic + 1));
+END //
+delimiter ;
+
+call fillMenus();
+select * from MenuTypes;
+
+-- ---------------------------------------------------------------
+-- menus per commerce
+DROP PROCEDURE IF EXISTS fillMenXCom;
+delimiter //
+CREATE PROCEDURE fillMenXCom ()
+BEGIN
+	declare maxMen bigint;
+    declare maxCom bigint;
+    declare rand1 bigint;
+    DECLARE INVALID_FUND INT DEFAULT(53000);
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+
+        IF (ISNULL(@message)) THEN -- excepcion forzada del programador
+			SET @message = 'Error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        ROLLBACK;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+	SET autocommit = 0;
+    
+	SELECT MAX(MenuTypeID) INTO maxMen FROM MenuTypes;
+	SELECT MAX(CommerceID) INTO maxCom FROM Commerces;
+    
+    while maxCom > 0 do		-- a cada comercio le voy a colocar un menu random
+		set rand1 = floor(rand()*maxMen + 1);	-- menu random
+		
+        INSERT INTO MenusPerCommerce (CommerceID, MenuTypeID)
+		VALUES (maxCom, rand1);
+
+        set maxCom = maxCom - 1;
+    end while;
+	
+END //
+delimiter ;
+
+call fillMenXCom();
+
+-- SET SQL_SAFE_UPDATES = 0;
+-- delete from MenusPerCommerce;
+-- SET SQL_SAFE_UPDATES = 1;
+

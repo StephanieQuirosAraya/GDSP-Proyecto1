@@ -5,7 +5,7 @@ USE Food_services;
 DROP VIEW IF EXISTS comNloc;
 CREATE VIEW comNloc
 AS
-SELECT com.`Name` CommerceName, PictureURL, loc.`Description` Address, Latitude, Longitude,
+SELECT com.CommerceID, com.`Name` CommerceName, PictureURL, loc.`Description` Address, Latitude, Longitude,
 	   StartTime, EndTime
 FROM Commerces com
 INNER JOIN Locations loc ON loc.LocationID = com.LocationID
