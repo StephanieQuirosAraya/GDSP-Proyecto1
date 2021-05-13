@@ -13,6 +13,12 @@ SELECT * FROM CharacteristicsPerProduct;
 SELECT * FROM CharacteristicOptions;
 SELECT * FROM CommerceTypes;
 SELECT * FROM BusinessHours;
+SELECT * FROM MenuTypes;
+SELECT * FROM MenusPerCommerce;
+SELECT * FROM ShoppingCarts;
+SELECT * FROM Users;
+SELECT * FROM Transactions;
+SELECT * FROM ProductsPerCart;
 
 -- INSERTS EN TABLAS PARA USAR TRANSACTION (addProduct)
 INSERT INTO Pictures (PictureID, PictureURL)
@@ -43,6 +49,27 @@ VALUES
 (CURRENT_TIME(),CURRENT_TIME(),1),
 (CURRENT_TIME(),CURRENT_TIME(),2);
 
+INSERT INTO ShoppingCarts(TotalProducts, PostTime, Cancelled, UserID, CommerceID)
+VALUES
+(1,CURRENT_TIME(), 0, 1, 1);
+
+INSERT INTO PaymentStatus (`Name`, `Description`)
+VALUES
+('HOLA', 'SS');
+
+INSERT INTO Transactions (PostTime, Amount, Currency, `Description`, ReferenceNumber, UserName, 
+ComputerName, IP, `Checksum`, UserID, PaymentStatusID)
+VALUES
+(CURRENT_TIME(), 1000, 'A', 'AA', 63552288, 'User5179', 'Lenovo', 123, 'Checksum', 1, 1);
+
+INSERT INTO Orders (PostTime, ShoppingCartID, TransactionID)
+VALUES
+(CURRENT_TIME(),1,1);
+
+INSERT INTO ProductsPerCart (ClientInstructions, TotalUnit, ProductID, ShoppingCartID)
+VALUES
+('Con salsas', 1, 1, 1);
+
 -- LLAMADA A TRANSACCION (addProduct)
 call addProducts('Soda Miguel','Arroz con pollo', 'Arroz y pollo', 1000,
 0,'Comida','http:aRROZ', @lasPicture, @lastProduct);
@@ -50,7 +77,7 @@ call addProducts('Soda Miguel','Arroz con pollo', 'Arroz y pollo', 1000,
 CALL addCharacteristicProduct('Tamaño Porcion', 'El tamño de la porcion de arroz con pollo, se medira por 
 el tamaño del plato', 1, 'Comida', 'Un plato de tamaño mediano', 'Arroz con pollo', 'Salsas', 0);
 
--- DELETE FROM CommerceTypes where CommerceTypeID = 20;
+DELETE FROM Pictures where PictureID = 27;
 
 SELECT CONCAT(commer.`Name`, ' ', `type`.`Name`, ' Abre: ', hours.StartTime, ' Cierra: ', hours.EndTime) 
 'Informacion de los restaurantes'
