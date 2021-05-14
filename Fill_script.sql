@@ -10,7 +10,7 @@ de negocio anual se debe situar por debajo de los 50 millones de euros.', 1),
 Deben tener un volumen de negocios anual no superior a los 10 millones de euros.', 2),
 ('Microempresa', 'La entidad debe tener menos de 10 trabajadores, ya sean asalariados, socios, 
 trabajadores temporales o propietarios.', 3);
--- SELECT * FROM CommerceTypes;
+SELECT * FROM CommerceTypes;
 -- ---------------------------------------------------------------
 -- Location
 DROP PROCEDURE IF EXISTS fillLocation;
@@ -89,7 +89,7 @@ INSERT INTO ProductCategories (`Name`)
 VALUES  ("Comida"), ("Esenciales"), ("Farmacia"),
         ("Mascotas"), ("Alcohol"), ("Utiles");
 
--- select * from ProductCategories;
+ -- select * from ProductCategories;
 -- ---------------------------------------------------------------
 -- Products
 DROP PROCEDURE IF EXISTS fillProducts;
@@ -439,3 +439,53 @@ call fillOptions();
 -- SET SQL_SAFE_UPDATES = 0;
 -- delete from MenusPerCommerce;
 -- SET SQL_SAFE_UPDATES = 1;
+
+-- ---------------------------------------------------------------
+-- characteristic per product
+DROP PROCEDURE IF EXISTS fillCharXProd;
+delimiter //
+CREATE PROCEDURE fillCharXProd ()
+BEGIN    
+	declare maxProd bigint;
+	
+    DECLARE INVALID_FUND INT DEFAULT(53000);
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+
+        IF (ISNULL(@message)) THEN -- excepcion forzada del programador
+			SET @message = 'Error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        ROLLBACK;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+	SET autocommit = 0;
+    
+    SELECT MAX(ProductID) INTO maxProd FROM Products;
+    
+    while maxProd > 0 do
+		select ProductCategoryID into @categ from Products where ProductID=maxProd;
+		select CharacteristicID into @characID from Characteristics where ProductCategoryID=@categ
+        order by CharacteristicID asc limit 1;
+		insert into CharacteristicsPerProduct (ProductID, CharacteristicID)
+		values (maxProd, @characID);
+        select CharacteristicID into @characID from Characteristics where ProductCategoryID=@categ
+        order by CharacteristicID desc limit 1;
+		insert into CharacteristicsPerProduct (ProductID, CharacteristicID)
+		values (maxProd, @characID);
+        
+		set maxProd = maxProd - 1;
+    end while;
+END //
+delimiter ;
+
+call fillCharXProd();
+-- select * from CharacteristicsPerProduct;
+
+-- SET SQL_SAFE_UPDATES = 0;
+-- delete from CharacteristicsPerProduct;
+-- SET SQL_SAFE_UPDATES = 1;
+-- ALTER TABLE CharacteristicsPerProduct AUTO_INCREMENT = 1;
+
