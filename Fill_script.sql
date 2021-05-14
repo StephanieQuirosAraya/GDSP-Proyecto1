@@ -307,7 +307,7 @@ BEGIN
 END //
 delimiter ;
 
-call fillCharact(2);
+call fillCharact(3);
 -- select * from Characteristics;
 
 -- ---------------------------------------------------------------
@@ -388,7 +388,54 @@ delimiter ;
 
 call fillMenXCom();
 
+-- ---------------------------------------------------------------
+-- characteristic options
+DROP PROCEDURE IF EXISTS fillOptions;
+delimiter //
+CREATE PROCEDURE fillOptions ()
+BEGIN
+	declare maxCharact bigint;
+    declare opciones int;    
+    
+    DECLARE INVALID_FUND INT DEFAULT(53000);
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+
+        IF (ISNULL(@message)) THEN -- excepcion forzada del programador
+			SET @message = 'Error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        ROLLBACK;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+	SET autocommit = 0;
+    
+	SELECT MAX(CharacteristicID) INTO maxCharact FROM Characteristics;
+    
+    -- por cada caracteristica, voy a agregar una cant random de opciones, que sea mayor que MaxSelection
+    while maxCharact > 0 do
+		select MaxSelection into opciones from Characteristics where CharacteristicID=maxCharact;	-- obtiene la seleccion maxima
+        set opciones = opciones + floor(rand()*5+1); -- cant de opciones que tendra la caracteristica
+        while opciones > 0 do
+			if rand() < 0.3 then
+				insert into CharacteristicOptions (`Name`, ExtraPrice, CharacteristicID)
+                values (concat("Opcion", floor(rand()*1000) ), floor(rand() * 9000 + 100), maxCharact);
+            else 
+				insert into CharacteristicOptions (`Name`, ExtraPrice, CharacteristicID)
+                values (concat("Opcion", floor(rand()*1000) ), 0, maxCharact);
+            end if;
+			set opciones = opciones - 1;
+        end while;
+		set maxCharact = maxCharact - 1;
+    end while;
+END //
+delimiter ;
+
+call fillOptions();
+
+
 -- SET SQL_SAFE_UPDATES = 0;
 -- delete from MenusPerCommerce;
 -- SET SQL_SAFE_UPDATES = 1;
-
