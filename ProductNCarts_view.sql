@@ -1,7 +1,7 @@
 USE Food_services;
 -- products, products per cart, cart, user VIEW
 DROP VIEW IF EXISTS ProductNCarts;
-CREATE VIEW ProductNCarts
+CREATE VIEW ProductNCarts 
 AS
 SELECT Users.`Name` users, carts.ShoppingCartID, TotalProducts, Cancelled, carts.PostTime, 
 	   prod.`Name`, Price, TotalUnit, ClientInstructions
