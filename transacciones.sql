@@ -13,8 +13,6 @@ CREATE PROCEDURE addProducts
     IN pAvailable BIT, -- Si esta disponible o no el producto
     IN pCatName NVARCHAR(50), -- nombre de la categoria del producto
 	IN pPictureURL VARCHAR(128),-- el url de la imagen del producto
-	OUT lastPictureURL BIGINT, -- id de la imagen del producto
-	OUT lastProduct BIGINT -- id del producto a insertar
 	-- caracteristicas serian mejor hacerlas en otro SP para 
 	-- hacerlas dentro de un while y 
 )
@@ -59,16 +57,12 @@ BEGIN
 		INSERT INTO Pictures (PictureURL)
 		VALUES
 		(pPictureURL);
-		
-		SELECT LAST_INSERT_ID() INTO lastPictureURL;
 	
 		INSERT INTO Products (`Name`, `Description`, Price, Available, 
 		ProductCategoryID, PictureID)
 		VALUES
 		(pName, pDescription, pPrice, pAvailable, @ProductCategoryID,
 		lastPictureURL);
-		
-		SELECT LAST_INSERT_ID() INTO lastProduct;
 		
 		INSERT INTO ProductsPerCommerce (ProductID, CommerceID)
 		VALUES

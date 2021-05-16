@@ -10,7 +10,7 @@ de negocio anual se debe situar por debajo de los 50 millones de euros.', 1),
 Deben tener un volumen de negocios anual no superior a los 10 millones de euros.', 2),
 ('Microempresa', 'La entidad debe tener menos de 10 trabajadores, ya sean asalariados, socios, 
 trabajadores temporales o propietarios.', 3);
--- SELECT * FROM CommerceTypes;
+SELECT * FROM CommerceTypes;
 -- ---------------------------------------------------------------
 -- Location
 DROP PROCEDURE IF EXISTS fillLocation;
@@ -89,7 +89,7 @@ INSERT INTO ProductCategories (`Name`)
 VALUES  ("Comida"), ("Esenciales"), ("Farmacia"),
         ("Mascotas"), ("Alcohol"), ("Utiles");
 
--- select * from ProductCategories;
+ -- select * from ProductCategories;
 -- ---------------------------------------------------------------
 -- Products
 DROP PROCEDURE IF EXISTS fillProducts;
@@ -307,7 +307,185 @@ BEGIN
 END //
 delimiter ;
 
-call fillCharact(2);
+call fillCharact(3);
 -- select * from Characteristics;
 
 -- ---------------------------------------------------------------
+DROP PROCEDURE IF EXISTS fillHours;
+delimiter //
+CREATE PROCEDURE fillHours ()
+BEGIN
+	-- crea pCantidad de business hours en comercios random
+    declare maxCom bigint;
+	SELECT MAX(CommerceID) INTO maxCom FROM Commerces;
+    while maxCom > 0 do
+		INSERT INTO BusinessHours (StartTime, EndTime, CommerceID)
+		VALUES (now(), current_time(), maxCom);
+		set maxCom = maxCom - 1;
+    end while;
+END //
+delimiter ;
+
+call fillHours();
+-- ---------------------------------------------------------------
+-- MEnu types
+DROP PROCEDURE IF EXISTS fillMenus;
+delimiter //
+CREATE PROCEDURE fillMenus ()
+BEGIN
+	declare maxPic bigint;
+    SELECT MAX(PictureID) INTO maxPic FROM Pictures;
+    
+	INSERT INTO MenuTypes (`Name`, PictureID)
+	VALUES ("Asiatica", FLOOR(rand()*maxPic + 1)), ("Americana", FLOOR(rand()*maxPic + 1)), 
+			("Caribeña", FLOOR(rand()*maxPic + 1)), ("Sushi", FLOOR(rand()*maxPic + 1)),
+			("Italiana", FLOOR(rand()*maxPic + 1)), ("Vegetariana", FLOOR(rand()*maxPic + 1)), 
+            ("Mexicana", FLOOR(rand()*maxPic + 1));
+END //
+delimiter ;
+
+call fillMenus();
+select * from MenuTypes;
+
+-- ---------------------------------------------------------------
+-- menus per commerce
+DROP PROCEDURE IF EXISTS fillMenXCom;
+delimiter //
+CREATE PROCEDURE fillMenXCom ()
+BEGIN
+	declare maxMen bigint;
+    declare maxCom bigint;
+    declare rand1 bigint;
+    DECLARE INVALID_FUND INT DEFAULT(53000);
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+
+        IF (ISNULL(@message)) THEN -- excepcion forzada del programador
+			SET @message = 'Error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        ROLLBACK;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+	SET autocommit = 0;
+    
+	SELECT MAX(MenuTypeID) INTO maxMen FROM MenuTypes;
+	SELECT MAX(CommerceID) INTO maxCom FROM Commerces;
+    
+    while maxCom > 0 do		-- a cada comercio le voy a colocar un menu random
+		set rand1 = floor(rand()*maxMen + 1);	-- menu random
+		
+        INSERT INTO MenusPerCommerce (CommerceID, MenuTypeID)
+		VALUES (maxCom, rand1);
+
+        set maxCom = maxCom - 1;
+    end while;
+	
+END //
+delimiter ;
+
+call fillMenXCom();
+
+-- ---------------------------------------------------------------
+-- characteristic options
+DROP PROCEDURE IF EXISTS fillOptions;
+delimiter //
+CREATE PROCEDURE fillOptions ()
+BEGIN
+	declare maxCharact bigint;
+    declare opciones int;    
+    
+    DECLARE INVALID_FUND INT DEFAULT(53000);
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+
+        IF (ISNULL(@message)) THEN -- excepcion forzada del programador
+			SET @message = 'Error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        ROLLBACK;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+	SET autocommit = 0;
+    
+	SELECT MAX(CharacteristicID) INTO maxCharact FROM Characteristics;
+    
+    -- por cada caracteristica, voy a agregar una cant random de opciones, que sea mayor que MaxSelection
+    while maxCharact > 0 do
+		select MaxSelection into opciones from Characteristics where CharacteristicID=maxCharact;	-- obtiene la seleccion maxima
+        set opciones = opciones + floor(rand()*5+1); -- cant de opciones que tendra la caracteristica
+        while opciones > 0 do
+			if rand() < 0.3 then
+				insert into CharacteristicOptions (`Name`, ExtraPrice, CharacteristicID)
+                values (concat("Opcion", floor(rand()*1000) ), floor(rand() * 9000 + 100), maxCharact);
+            else 
+				insert into CharacteristicOptions (`Name`, ExtraPrice, CharacteristicID)
+                values (concat("Opcion", floor(rand()*1000) ), 0, maxCharact);
+            end if;
+			set opciones = opciones - 1;
+        end while;
+		set maxCharact = maxCharact - 1;
+    end while;
+END //
+delimiter ;
+
+call fillOptions();
+
+
+-- SET SQL_SAFE_UPDATES = 0;
+-- delete from MenusPerCommerce;
+-- SET SQL_SAFE_UPDATES = 1;
+
+-- ---------------------------------------------------------------
+-- characteristic per product
+DROP PROCEDURE IF EXISTS fillCharXProd;
+delimiter //
+CREATE PROCEDURE fillCharXProd ()
+BEGIN    
+	declare maxProd bigint;
+	
+    DECLARE INVALID_FUND INT DEFAULT(53000);
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+
+        IF (ISNULL(@message)) THEN -- excepcion forzada del programador
+			SET @message = 'Error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        ROLLBACK;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+	SET autocommit = 0;
+    
+    SELECT MAX(ProductID) INTO maxProd FROM Products;
+    
+    while maxProd > 0 do
+		select ProductCategoryID into @categ from Products where ProductID=maxProd;
+		select CharacteristicID into @characID from Characteristics where ProductCategoryID=@categ
+        order by CharacteristicID asc limit 1;
+		insert into CharacteristicsPerProduct (ProductID, CharacteristicID)
+		values (maxProd, @characID);
+        select CharacteristicID into @characID from Characteristics where ProductCategoryID=@categ
+        order by CharacteristicID desc limit 1;
+		insert into CharacteristicsPerProduct (ProductID, CharacteristicID)
+		values (maxProd, @characID);
+        
+		set maxProd = maxProd - 1;
+    end while;
+END //
+delimiter ;
+
+call fillCharXProd();
+-- select * from CharacteristicsPerProduct;
+
+-- SET SQL_SAFE_UPDATES = 0;
+-- delete from CharacteristicsPerProduct;
+-- SET SQL_SAFE_UPDATES = 1;
+-- ALTER TABLE CharacteristicsPerProduct AUTO_INCREMENT = 1;
+
