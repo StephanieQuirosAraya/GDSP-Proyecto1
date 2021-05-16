@@ -26,5 +26,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("pPrice") int pPrice,
             @Param("pAvailable") boolean pAvailable,
             @Param("pCatName") String pCatName,
-            @Param("pPictureURL") String pPictureURL);
+            @Param("pPictureURL") String pPictureURL
+    );
 }
