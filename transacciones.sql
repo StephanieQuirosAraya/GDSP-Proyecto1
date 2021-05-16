@@ -12,12 +12,14 @@ CREATE PROCEDURE addProducts
     IN pPrice INT, -- costo del producto
     IN pAvailable BIT, -- Si esta disponible o no el producto
     IN pCatName NVARCHAR(50), -- nombre de la categoria del producto
-	IN pPictureURL VARCHAR(128),-- el url de la imagen del producto
+	IN pPictureURL VARCHAR(128)-- el url de la imagen del producto
 	-- caracteristicas serian mejor hacerlas en otro SP para 
 	-- hacerlas dentro de un while y 
 )
 BEGIN
 	-- crear un sistema de código errores 
+	DECLARE lastPictureURL BIGINT;
+	DECLARE lastProduct BIGINT;
 	DECLARE INVALID_FUND INT DEFAULT(53000);
 
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -57,12 +59,16 @@ BEGIN
 		INSERT INTO Pictures (PictureURL)
 		VALUES
 		(pPictureURL);
+		
+		SELECT LAST_INSERT_ID() INTO lastPictureURL;
 	
 		INSERT INTO Products (`Name`, `Description`, Price, Available, 
 		ProductCategoryID, PictureID)
 		VALUES
 		(pName, pDescription, pPrice, pAvailable, @ProductCategoryID,
 		lastPictureURL);
+		
+		SELECT LAST_INSERT_ID() INTO lastProduct;
 		
 		INSERT INTO ProductsPerCommerce (ProductID, CommerceID)
 		VALUES
