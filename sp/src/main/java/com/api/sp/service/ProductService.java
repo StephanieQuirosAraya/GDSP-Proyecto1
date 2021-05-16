@@ -12,12 +12,9 @@ public class ProductService {
     @Autowired
     ProductRepository productRep;
 
-    public String addProducts(String commerceName, String pName, String pDescription,
-                            int pPrice, boolean pAvailable, String pCatName,
-                            string pPictureURL){
-        productRep.addProducts(commerceName, pName, pDescription,
-                pPrice, pAvailable, pCatName, pPictureURL); //llama al rep
-        return "Se agregó el producto.";
+    public void addProduct (Product prod) { //llama al rep
+        productRep.addProducts(prod.getCommerceName(), prod.getName(), prod.getDescription(),
+                prod.getPrice(), prod.isAvailable(), prod.getCategoryName(), prod.getPictureURL());
     }
 
     //aqui llamo al controller mediante el repositorio

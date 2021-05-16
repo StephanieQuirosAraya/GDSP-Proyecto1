@@ -4,6 +4,7 @@ package com.api.sp.entity;
 
 public class Product {
 
+    private String CommerceName;
     private String Name;
     private String Description;
     private int Price;
@@ -14,14 +15,23 @@ public class Product {
     public Product() {
     }
 
-    public Product(String Name, String Description, int Price, boolean Available,
+    public Product(String CommerceName, String Name, String Description, int Price, boolean Available,
                    String CategoryName, String PictureURL) {
+        this.CommerceName = CommerceName;
         this.Name = Name;
         this.Description = Description;
         this.Price = Price;
         this.Available = Available;
         this.CategoryName = CategoryName;
         this.PictureURL = PictureURL;
+    }
+
+    public String getCommerceName() {
+        return CommerceName;
+    }
+
+    public void setCommerceName(String commerceName) {
+        CommerceName = commerceName;
     }
 
     public String getName() {
