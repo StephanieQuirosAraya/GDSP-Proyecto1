@@ -1,9 +1,15 @@
 package com.api.sp.entity;
 
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
-public class Product {
-
+@Entity
+public class Products {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String CommerceName;
     private String Name;
     private String Description;
@@ -12,10 +18,10 @@ public class Product {
     private String CategoryName;
     private String PictureURL;
 
-    public Product() {
+    public Products() {
     }
 
-    public Product(String CommerceName, String Name, String Description, int Price, boolean Available,
+    public Products(String CommerceName, String Name, String Description, int Price, boolean Available,
                    String CategoryName, String PictureURL) {
         this.CommerceName = CommerceName;
         this.Name = Name;
