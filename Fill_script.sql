@@ -311,3 +311,183 @@ call fillCharact(2);
 -- select * from Characteristics;
 
 -- ---------------------------------------------------------------
+-- Applications
+DROP PROCEDURE IF EXISTS fillApplications;
+delimiter //
+CREATE PROCEDURE fillApplications(pCantidad INT)
+BEGIN
+	declare n int default 0;
+	DECLARE rand1 BIGINT;
+  WHILE n < pCantidad DO
+
+    SET rand1 = FLOOR(RAND() * (9999-1000) + 1); -- Name
+    INSERT INTO Applications (`Name`, `Description`)
+    VALUE (CONCAT("Application", rand1), CONCAT('Description ')+rand1);
+    SET n = n + 1;
+  END WHILE;
+END //
+delimiter ;
+
+call fillApplications(2);
+-- SELECT * FROM Applications;
+
+-- ---------------------------------------------------------------
+-- Modules
+DROP PROCEDURE IF EXISTS fillModules;
+delimiter //
+CREATE PROCEDURE fillModules(pCantidad INT)
+BEGIN
+	declare n int default 0;
+	DECLARE rand1 BIGINT;
+    DECLARE rand2 TINYINT;
+    
+  WHILE n < pCantidad DO
+	SELECT MAX(ApplicationID) INTO @apID FROM Applications;
+    SET rand2 = FLOOR(rand()*(@apID)+1); -- Aplication
+    SET rand1 = FLOOR(RAND() * (9999-1000) + 1); -- Name
+    INSERT INTO Modules (`Name`, ApplicationID)
+    VALUE (CONCAT("Application", rand1), rand2);
+    SET n = n + 1;
+  END WHILE;
+END //
+delimiter ;
+
+call fillModules(6);
+-- SELECT * FROM Modules;
+
+-- ---------------------------------------------------------------
+-- Permissions
+DROP PROCEDURE IF EXISTS fillPermisions;
+delimiter //
+CREATE PROCEDURE fillPermisions(pCantidad INT)
+BEGIN
+	declare n int default 0;
+	DECLARE rand1 BIGINT;
+    DECLARE rand2 TINYINT;
+    
+  WHILE n < pCantidad DO
+	SELECT MAX(ModuleID) INTO @modID FROM Modules;
+    SET rand2 = FLOOR(rand()*(@modID)+1); -- Modules
+    SET rand1 = FLOOR(RAND() * (9999-1000) + 1); -- Name
+    INSERT INTO Permissions (`Name`, `Description`, `Code`, `Enabled`, Deleted, ModuleID)
+    VALUE (CONCAT('Permission ', rand1), CONCAT('Description ',rand1), CONCAT('CODE ',rand1),  1, 0, rand2);
+    SET n = n + 1;
+  END WHILE;
+END //
+delimiter ;
+
+call fillPermisions(6);
+-- SELECT * FROM Permissions;
+
+-- ---------------------------------------------------------------
+-- PermissionsPerUser
+DROP PROCEDURE IF EXISTS fillPermissionsPerUser;
+delimiter //
+CREATE PROCEDURE fillPermissionsPerUser(pCantidad INT)
+BEGIN
+	declare n int default 0;
+	DECLARE rand1 BIGINT;
+    DECLARE rand2 SMALLINT;
+    DECLARE rand3 BIGINT;
+    DECLARE rand4 VARBINARY(200);
+    DECLARE rand5 BIGINT;
+    
+    SELECT MAX(UserID) INTO @userInC FROM Users;
+    SET rand5 = FLOOR(rand()*(@userInC)+1); -- UserInCharge
+    
+  WHILE n < pCantidad DO
+	SELECT MAX(PermissionID) INTO @perID FROM Permissions;
+    SET rand2 = FLOOR(rand()*(@perID)+1); -- Permissions
+    SELECT MAX(UserID) INTO @userID FROM Users;
+    SET rand3 = FLOOR(rand()*(@userID)+1); -- UserID
+    SET rand1 = FLOOR(RAND() * (9999-1000) + 1); -- Name
+    SET rand4 = SHA2(CONCAT(current_date(), 0, current_date(), rand5, rand2, rand3),256);
+    INSERT INTO PermissionsPerUser (PostTime, Deleted, LastUpdate, `Checksum`, UserInChargeID, PermissionID, UserID)
+    VALUE (current_date(), 0, current_date(), rand4, rand5, rand2, rand3);
+    SET n = n + 1;
+  END WHILE;
+END //
+delimiter ;
+
+call fillPermissionsPerUser(6);
+-- SELECT * FROM PermissionsPerUser;
+
+-- ---------------------------------------------------------------
+-- Roles
+DROP PROCEDURE IF EXISTS fillRoles;
+delimiter //
+CREATE PROCEDURE fillRoles(pCantidad INT)
+BEGIN
+	declare n int default 0;
+	DECLARE rand1 BIGINT;
+  WHILE n < pCantidad DO
+    SET rand1 = FLOOR(RAND() * (9999-1000) + 1); -- Name
+    INSERT INTO Roles (`Name`, `Description`)
+    VALUE (CONCAT("Role ", rand1), CONCAT('Description ')+rand1);
+    SET n = n + 1;
+  END WHILE;
+END //
+delimiter ;
+
+call fillRoles(2);
+-- SELECT * FROM Roles;
+
+-- -----------------------------------------------------------------------------
+-- RolesPerUser
+DROP PROCEDURE IF EXISTS fillRolesPerUser;
+delimiter //
+CREATE PROCEDURE fillRolesPerUser(pCantidad INT)
+BEGIN
+	declare n int default 0;
+	DECLARE rand1 BIGINT;
+    DECLARE rand2 SMALLINT;
+    DECLARE rand3 BIGINT;
+    DECLARE rand4 VARBINARY(200);
+    DECLARE rand5 INT;
+    
+  WHILE n < pCantidad DO
+	SELECT MAX(RoleID) INTO @roleID FROM Roles;
+    SET rand2 = FLOOR(rand()*(@roleID)+1); -- Role
+    SELECT MAX(UserID) INTO @userID FROM Users;
+    SET rand3 = FLOOR(rand()*(@userID)+1); -- UserID
+    SET rand1 = FLOOR(RAND() * (9999-1000) + 1); -- Name
+    SET rand5 = FLOOR(RAND() * (9999-1000) + 1); -- IP
+    SET rand4 = SHA2(CONCAT(current_date(), 0, rand5, current_date(), rand2, rand3),256);
+    INSERT INTO RolesPerUser (PostTime, Deleted, IP, `Checksum`, LastUpdate, RoleID, UserID)
+    VALUE (current_date(), 0, rand5, rand4, current_date(), rand2, rand3);
+    SET n = n + 1;
+  END WHILE;
+END //
+delimiter ;
+
+call fillRolesPerUser(2);
+-- SELECT * FROM RolesPerUser;
+
+-- -----------------------------------------------------------------------------
+-- PermissionsPerRole
+DROP PROCEDURE IF EXISTS fillPermissionsPerRole;
+delimiter //
+CREATE PROCEDURE fillPermissionsPerRole(pCantidad INT)
+BEGIN
+	declare n int default 0;
+	DECLARE rand1 BIGINT;
+    DECLARE rand2 SMALLINT;
+    DECLARE rand4 BIGINT;
+    
+    SELECT MAX(UserID) INTO @userInC FROM Users;
+    SET rand4 = FLOOR(rand()*(@userInC)+1); -- UserInCharge
+    
+  WHILE n < pCantidad DO
+	SELECT MAX(PermissionID) INTO @perID FROM Permissions;
+    SET rand2 = FLOOR(rand()*(@perID)+1); -- Permissions
+    SELECT MAX(RoleID) INTO @roleID FROM Roles;
+    SET rand1 = FLOOR(rand()*(@roleID)+1); -- UserID
+    INSERT INTO PermissionsPerRole (PostTime, Deleted, LastUpdate, UserInChargeID, RoleID, PermissionID)
+    VALUE (current_date(), 0, current_date(), rand4, rand1, rand2);
+    SET n = n + 1;
+  END WHILE;
+END //
+delimiter ;
+
+call fillPermissionsPerRole(2);
+-- SELECT * FROM PermissionsPerRole;
