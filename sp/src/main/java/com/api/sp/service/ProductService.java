@@ -11,12 +11,17 @@ public class ProductService {
     ProductRepository productRepository;
 
     public void addProduct (Products prod) { //llama al rep
-        productRepository.addProducts(prod.getCommerceName(), prod.getName(), prod.getDescription(),
-                                      prod.getPrice(), prod.isAvailable(), prod.getCategoryName(),
-                                      prod.getPictureURL());
+        try{
+            productRepository.addProducts(prod.getCommerceName(), prod.getName(), prod.getDescription(),
+                    prod.getPrice(), prod.isAvailable(), prod.getCategoryName(),
+                    prod.getPictureURL());
+        } catch (Exception e){
+            System.out.println("Service: "+e.getMessage());
+        }
+
     }
 
-    //aqui llamo al controller mediante el repositorio
+
 
 
 

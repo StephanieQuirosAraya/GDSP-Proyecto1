@@ -8,19 +8,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping ("/product")
+//@RequestMapping ("/product")
 public class ProductController {
 
     @Autowired
     ProductService productService;
 
-    @PostMapping("/addProduct")
+    @PostMapping("/addProducts")
     public ResponseEntity<?> addProducts(@RequestBody Products prod){
-        productService.addProduct(prod);
-        return new ResponseEntity("Se guardó un nuevo producto.",
-                                  HttpStatus.CREATED);
+        try {
+            productService.addProduct(prod);
+            return new ResponseEntity("Se guardó un nuevo producto.", HttpStatus.CREATED);
+
+        } catch (Exception e){
+            return new ResponseEntity("Controller: "+e, HttpStatus.CREATED);
+        }
+
     }
 
-    //trae los datos del body y llame desde service al SP
-    //retorna mensaje
 }

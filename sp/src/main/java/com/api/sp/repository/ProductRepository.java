@@ -12,11 +12,8 @@ import javax.transaction.Transactional;
 @Repository
 public interface ProductRepository extends JpaRepository<Products, Integer> {
 
-    //llamadas al sP y le paso los param
-
     @Transactional@Modifying
-    @Query(value = "{call addProducts(:commerceName, :pName, :pDescription, " +
-                    ":pPrice, :pAvailable, :pCatName, :pPictureURL)}", nativeQuery = true)
+    @Query(value = "{call addProducts(:commerceName, :pName, :pDescription, :pPrice, :pAvailable, :pCatName, :pPictureURL)}", nativeQuery = true)
     void addProducts(
             @Param("commerceName") String commerceName,
             @Param("pName") String pName,
