@@ -1,9 +1,10 @@
 USE Food_services;
 
-DROP PROCEDURE IF EXISTS getProductCommerceMenu;
+DROP PROCEDURE IF EXISTS getOrders;
 DELIMITER $$
 
-CREATE PROCEDURE getProductCommerceMenu (
+CREATE PROCEDURE getOrders (
+	IN userName NVARCHAR(50)
 )
 BEGIN
 	-- crear un sistema de código errores 
@@ -26,12 +27,13 @@ BEGIN
 
 	SET autocommit = 0;
 
-	SELECT Carrito.`Name`, orderID, TotalProducts, Cancelled, Carrito.PostTime, 
+	SELECT Carrito.users, orderID, TotalProducts, Cancelled, Carrito.PostTime, 
 	   Carrito.`Name`, Price, TotalUnit, ClientInstructions
 	FROM Orders 
-    INNER JOIN (Select * FROM ProductNCarts) as Carrito ON Carrito.ShoppingCartID = Orders.ShoppingCartID;
+    INNER JOIN (Select * FROM ProductNCarts) as Carrito ON Carrito.ShoppingCartID = Orders.ShoppingCartID
+    WHERE Carrito.users = userName;
     
 END$$
 DELIMITER ;
 
-CALL getProductCommerceMenu ();
+-- CALL getOrders ('User5179');
