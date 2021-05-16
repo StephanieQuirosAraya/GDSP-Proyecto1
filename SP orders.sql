@@ -1,9 +1,9 @@
 USE Food_services;
 
-DROP PROCEDURE IF EXISTS getProductCommerceMenu;
+DROP PROCEDURE IF EXISTS getOrders;
 DELIMITER $$
 
-CREATE PROCEDURE getProductCommerceMenu (
+CREATE PROCEDURE getOrders (
 	IN userName NVARCHAR(50)
 )
 BEGIN
@@ -36,4 +36,4 @@ BEGIN
 END$$
 DELIMITER ;
 
--- CALL getProductCommerceMenu ('User5179');
+-- CALL getOrders ('User5179');
