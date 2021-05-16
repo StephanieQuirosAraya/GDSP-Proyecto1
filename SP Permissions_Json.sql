@@ -4,8 +4,7 @@ DROP PROCEDURE IF EXISTS getUserPermissions;
 DELIMITER $$
 
 CREATE PROCEDURE getUserPermissions(
-	IN pUserEmail VARCHAR(320),
-    OUT informacion JSON
+	pUserEmail VARCHAR(320)
 )
 
 BEGIN
@@ -13,31 +12,24 @@ BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
 	SET  @userId = 0;
 	SELECT IFNULL(userId,@userId) INTO @userId FROM Users
-    WHERE Email = pUserEmail LIMIT 1; 
+    WHERE Users.Email = pUserEmail LIMIT 1; 
 
 	IF (@userId = 0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER; -- handle this
     END IF;
 
-	SELECT `Name` INTO @UserName,LastName1 INTO @LastName1,LastName2 INTO @LastName2 FROM Users
-    INNER JOIN
-    SELECT PostTime INTO @PostTime FROM PermissionsPerUser
-    ON UserID = @userId
-    INNER JOIN 
-    SELECT `Name` INTO @PermissionName,`Description` INTO @PermissionDescription,`Enabled` INTO @Enabled as(0 = "enabled" or 1 = "disabled") FROM Permissions
-    ON PermissionsPerUser.PermissionID = Permissions.PermissionID;
-    informacion =
-    {"UserName" : @UserName,
-    "LastName1" : @LastName1,
-    "LastName2" : @LastName2,
-    "PostTime" : @PostTime,
-    "PermissionName" : @PermissionName,
-    "Description" : @PermissionDescription,
-    "Enabled" : @Enabled
-    }
-    RETURN informacion;
+	SELECT `Name`, LastName1, LastName2 INTO @UserName, @LastName1, @LastName2 FROM Users
+    WHERE UserID = @userId;
+    SELECT PostTime, PermissionID INTO @PostTime, @PermissionID FROM PermissionsPerUser
+    where UserID = @userId;
+    SELECT `Name`,`Description`,`Enabled` INTO @PermissionName, @PermissionDescription, @Enabled FROM Permissions
+    WHERE PermissionID = @PermissionID;
+    
+    SELECT JSON_OBJECT('UserName', @UserName, 'LastName1', @LastName1, 'LastName2',@LastName2,'PostTime',@PostTime,'PermissionName',@PermissionName,'Description',@PermissionDescription,'Enabled',@Enabled);
+    
     
 END$$
 DELIMITER ;
 
-CALL getUserOrders();
+
+-- CALL getUserPermissions("User5369@e-mail.com");
