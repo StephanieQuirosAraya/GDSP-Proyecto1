@@ -6,7 +6,7 @@ app.use(express.json())
 
 
 const connection = mysql.createConnection({
-    host: 'localhost',
+    host: 'ProyectoGDSP',
     user: 'root',
     password: '123456',
     database: 'Food_services',
