@@ -17,7 +17,7 @@ CREATE PROCEDURE productsPerPrice(
 			Where 3000 < Price and Price <= 10000;
 		WHEN 'Caro' THEN 
 			SELECT concat(`Name`, `Description`, Price) FROM Products
-			Where 3000 < Price and Price <= 10000;
+			Where Price > 10000;
 		ELSE
 			SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_FUND;
     END CASE;
