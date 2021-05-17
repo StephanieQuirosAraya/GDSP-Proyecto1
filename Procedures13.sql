@@ -34,16 +34,15 @@ CREATE PROCEDURE insertNregist(
 	pLocationID binary(16) 
 )
 begin
-	select pLocationID;
     insert into Food_services.`Locations`(`Description`, Latitude, Longitude)
     select `Description`, Latitude, Longitude from temporaryLocation t
 	where t.`LocationID` = pLocationID;
 END //
 DELIMITER ;
 
-SET @groupid = uuid_to_bin(uuid());
-call fillTempTable(@groupid);
-call insertNregist(@groupid);
+SET @LocationID = uuid_to_bin(uuid());
+call fillTempTable(@LocationID);
+call insertNregist(@LocationID);
 
 select * from Food_services.`Locations`;
 
