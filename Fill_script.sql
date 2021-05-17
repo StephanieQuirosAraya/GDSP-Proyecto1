@@ -190,7 +190,7 @@ BEGIN
 
 		INSERT INTO Users (`Name`, LastName1, LastName2, Birthdate, Email, `Password`, LocationID)
 		VALUES (CONCAT("User",rand1), CONCAT("LastName", rand1), CONCAT("Second", rand1), 
-				fecha, "e-mail", AES_ENCRYPT('password', 'keyword'), rand2);
+				fecha, CONCAT("User",rand1,"@e-mail.com"), AES_ENCRYPT('password', 'keyword'), rand2);
 		
         SET n = n + 1;
     END WHILE;
