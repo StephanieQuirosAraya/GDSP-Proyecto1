@@ -26,14 +26,15 @@ BEGIN
 	END;
 
 	SET autocommit = 0;
-
-	SELECT * from CommerceNProducts;
     
-    SELECT commer.`Name` CommerceName, Menu.`Name` MenuName, pictureURL MenuPicture FROM Commerces commer
+    SELECT commer.`Name` CommerceName, Menu.`Name` MenuName, Menu.pictureURL MenuPicture
+    , comNpProd.Producto, comNpProd.`Description`, comNpProd.Precio, 
+	comNpProd.Disponible, comNpProd.PictureURL FROM Commerces commer
     INNER JOIN (SELECT CommerceID, MenuT.`Name`, pictureURL FROM MenuTypes MenuT
     INNER JOIN MenusPerCommerce menu ON menu.MenuTypeID = MenuT.MenuTypeID
-    INNER JOIN Pictures pict ON pict.PictureID = MenuT.PictureID) as Menu 
-    ON Menu.CommerceID = commer.CommerceID;
+    INNER JOIN Pictures pict ON pict.PictureID = MenuT.PictureID) as Menu
+    ON Menu.CommerceID = commer.CommerceID
+    INNER JOIN CommerceNProducts comNpProd ON comNpProd.Comercio = commer.`Name`;
     
 END$$
 DELIMITER ;
